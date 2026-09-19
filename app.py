@@ -394,6 +394,13 @@ with ai_col:
 # ZONE STATUS
 # =====================================================
 
+# ZONE STATUS
+
+st.markdown("---")
+st.markdown("### 📍 Zone Status")
+
+z1, z2, z3, z4 = st.columns(4)
+
 with z1:
     if simulate_leak and current_zone == "A1":
         st.error("🔴 A1\n\nLEAK")
@@ -418,6 +425,8 @@ with z4:
     else:
         st.info("🟢 B2\n\nNormal")
 
+
+# LIVE GRAPH DATA
 # =====================================================
 # LIVE GRAPH DATA
 # =====================================================
