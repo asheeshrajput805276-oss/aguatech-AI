@@ -104,9 +104,12 @@ with header2:
 
 st.sidebar.title("🎛️ Demo Control")
 
-simulate_leak = st.sidebar.checkbox(
-    "🔴 Simulate Leak — B2"
+selected_zone = st.sidebar.selectbox(
+    "💧 Select Simulation Zone",
+    ["No Leak", "A1", "A2", "B1", "B2"]
 )
+
+simulate_leak = selected_zone != "No Leak"
 
 st.sidebar.divider()
 
@@ -125,7 +128,7 @@ if simulate_leak:
     pressure = random.uniform(2.0, 2.6)
     moisture = random.uniform(62, 72)
     water_level = random.uniform(3.0, 3.5)
-    current_zone = "B2"
+    current_zone = selected_zone
 
 else:
 
@@ -134,7 +137,6 @@ else:
     moisture = random.uniform(40, 48)
     water_level = random.uniform(3.5, 4.0)
     current_zone = "A1"
-
 # =====================================================
 # AI MODEL PREDICTION
 # =====================================================
@@ -285,29 +287,36 @@ with map_col:
 
     if simulate_leak:
 
-        st.markdown("""
-        <div class="panel">
+        def zone_display(zone):
+            if zone == current_zone:
+                return f'<span style="color:red;font-size:24px;">🔴 <b>{zone}</b></span>'
+            else:
+                return f'🟢 <b>{zone}</b>'
 
-        💧 <b>SOURCE</b>
+        st.markdown(
+            f"""
+            <div class="panel">
 
-        ↓
+            💧 <b>SOURCE</b>
 
-        🟢 <b>A1</b>
-        ━━━━━
-        🟢 <b>A2</b>
-        ━━━━━
-        🟢 <b>B1</b>
-        ━━━━━
-        <span style="color:red;font-size:24px;">
-        🔴 <b>B2</b>
-        </span>
+            ↓
 
-        <br><br>
+            {zone_display("A1")}
+            ━━━━━
+            {zone_display("A2")}
+            ━━━━━
+            {zone_display("B1")}
+            ━━━━━
+            {zone_display("B2")}
 
-        ⚠️ <b>PROBABLE LEAKAGE ZONE</b>
+            <br><br>
 
-        </div>
-        """, unsafe_allow_html=True)
+            ⚠️ <b>PROBABLE LEAKAGE ZONE: {current_zone}</b>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     else:
 
@@ -346,8 +355,8 @@ with ai_col:
         st.error("🔴 ANOMALY DETECTED")
 
         st.write(
-            "**Probable Zone:** B2"
-        )
+    f"**Probable Zone:** {current_zone}"
+)
 
         st.write(
             f"**Risk Level:** {risk_status}"
@@ -385,24 +394,26 @@ with ai_col:
 # ZONE STATUS
 # =====================================================
 
-st.markdown("---")
-
-st.markdown("### 📍 Zone Status")
-
-z1, z2, z3, z4 = st.columns(4)
-
 with z1:
-    st.info("🟢 A1\n\nNormal")
+    if simulate_leak and current_zone == "A1":
+        st.error("🔴 A1\n\nLEAK")
+    else:
+        st.info("🟢 A1\n\nNormal")
 
 with z2:
-    st.info("🟢 A2\n\nNormal")
+    if simulate_leak and current_zone == "A2":
+        st.error("🔴 A2\n\nLEAK")
+    else:
+        st.info("🟢 A2\n\nNormal")
 
 with z3:
-    st.info("🟢 B1\n\nNormal")
+    if simulate_leak and current_zone == "B1":
+        st.error("🔴 B1\n\nLEAK")
+    else:
+        st.info("🟢 B1\n\nNormal")
 
 with z4:
-
-    if simulate_leak:
+    if simulate_leak and current_zone == "B2":
         st.error("🔴 B2\n\nLEAK")
     else:
         st.info("🟢 B2\n\nNormal")
@@ -731,9 +742,7 @@ with r3:
 
 if verification_status == "VERIFIED":
 
-    st.error(
-        f"{decision_icon} **{decision} — B2**"
-    )
+    st.error(f"{decision_icon} **{decision} — {current_zone}**")
 
     st.write(
         "Multiple sensor parameters and the AI anomaly "
